@@ -33,9 +33,9 @@ import matplotlib.pyplot as plt
 import copy
 from numpy import mean
 
-elitismo = False
+elitismo = True
 convergencia = False
-ciclos = 20
+ciclos = 200
 
 probabilidadCrossover = 0.75
 probabilidadMutacion = 0.05
@@ -45,9 +45,10 @@ coef = 2 ** 30 - 1
 
 
 class Cromosoma:
-    valor = int()
+    # valor = int()
     fitness = float()
-    objetivo = float()
+
+    # objetivo = float()
 
     def __init__(self):
         self.genes = []
@@ -183,26 +184,22 @@ def crossover(poblacion):
     if elitismo:
         poblacion.sort(key=lambda cromosoma: cromosoma.objetivo, reverse=True)
         for pos, cElit in enumerate(poblacion):
-            if pos <= poblacionInicial * 0.2:
+            if pos < poblacionInicial * 0.2:
                 nuevaGeneracion.append(cElit)
                 poblacion.remove(cElit)
         rango = poblacionInicial - (int)(poblacionInicial * 0.2)
-        poblacion = random.shuffle(poblacion)
+        # poblacion = random.shuffle(poblacion)
     for _ in range((int)(rango / 2)):
-        padre1 = poblacion.pop(0)
-        padre2 = poblacion.pop(0)
+        padre1 = poblacion.pop(random.randrange(0,len(poblacion)))
+        padre2 = poblacion.pop(random.randrange(0,len(poblacion)))
         if random.uniform(0, 1) <= probabilidadCrossover:
             x = random.randint(0, cantidadGenes)
-            print(padre1.genes)
-            print(padre2.genes)
             genes1 = []
             genes2 = []
             genes1.extend(padre1.genes[0:x])
             genes1.extend(padre2.genes[x:cantidadGenes])
             genes2.extend(padre2.genes[0:x])
             genes2.extend(padre1.genes[x:cantidadGenes])
-            print(genes1)
-            print(genes2)
             hijo1 = Cromosoma()
             hijo1.cambiarGenes(genes1)
             hijo2 = Cromosoma()
@@ -262,10 +259,9 @@ def muestraGrafica(v, o, f, vMax, vMin, gMax):
     plt.show()
 
 
-def toExcel(g, vProm, oProm, fProm, oMax, oMin, gMax):
+def toExcel(g, vProm, oProm, oMax, oMin, gMax):
     Datos = pd.DataFrame({'Generacion': g, 'Valor Promedio': vProm, 'Valor Promedio de la FO': oProm,
-                          'Valor Maximo de la FO': oMax, 'Valor Minimo de la FO': oMin,
-                          'Funcion Fitness Promedio': fProm, \
+                          'Valor Maximo de la FO': oMax, 'Valor Minimo de la FO': oMin, \
                           'Cromosoma de mayor FO': gMax})
 
     Tabla = pd.ExcelWriter(r'D:\Users\nicol\Escritorio\Geneticos.xlsx', engine='xlsxwriter')
@@ -321,6 +317,8 @@ if __name__ == '__main__':
         fProm.append(f / poblacionInicial)
         oMax.append(maxO)
         oMin.append(minO)
+        cromStr = [str(int) for int in maxC]
+        maxC = ''.join(cromStr)
         gMax.append(maxC)
         muestra(poblacion)
         if convergencia:
@@ -332,7 +330,7 @@ if __name__ == '__main__':
         poblacion = seleccion(poblacion)
         poblacion = crossover(poblacion)
         poblacion = mutacion(poblacion)
-    toExcel(generaciones, vProm, oProm, fProm, oMax, oMin, gMax)  # Crea el Excel
+    toExcel(generaciones, vProm, oProm, oMax, oMin, gMax)  # Crea el Excel
     muestraGrafica(vProm, oProm, fProm, oMax, oMin, gMax)  # Crea la grafica
 
     # Cuando se cierra la grafica se ejecuta esto que borra el excel para no llenar de excels el escritorio
