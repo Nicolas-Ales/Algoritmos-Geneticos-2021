@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import copy
 from numpy import mean
 
-elitismo = True
+elitismo = False
 convergencia = False
 ciclos = 200
 
@@ -147,12 +147,12 @@ def seleccion(poblacion):
         k = 0
         # hace que el 20% de la poblacion pase a la siguiente generacion empezando por los mejores
         for cRep in poblacion:
-            if k <= poblacionInicial * 0.2:
+            if k < poblacionInicial * 0.2:
                 cElite = copy.copy(cRep)
                 nuevaGeneracion.append(cElite)
             else:
                 # Con la funcion ruleta recibe un cromosoma para la nueva generacion
-                c = copy.deepcopy(ruleta(poblacion))
+                c = copy.deepcopy(torneo(poblacion))
                 nuevaGeneracion.append(c)
             k += 1
     else:
@@ -237,14 +237,14 @@ def mutacion(poblacion):
             if random.randint(0, 100) > probabilidadMutacion * 100:  # corrobora si hay mutacion
                 nuevaGeneracion.append(cMut)
             else:
-                # si hay mutacion elige un punto donde cambiar 1 por 0 o al revez y hace el cambio
+                # si hay mutacion elige un punto donde cambiar 1 por 0 o al reves y hace el cambio
                 x = random.randint(0, cantidadGenes - 1)
                 genesMutados = cMut.genes
                 if genesMutados[x] == 0:
                     genesMutados[x] = 1
                 else:
                     genesMutados[x] = 0
-                cMut.cambiarGenes(genesMutados)
+                cMut.cambiarGenes(genesMutados) # cambiar genes vuelve a calcular su valor, funcion objetiva
                 nuevaGeneracion.append(cMut)
     return nuevaGeneracion
 
@@ -264,7 +264,7 @@ def toExcel(g, vProm, oProm, oMax, oMin, gMax):
                           'Valor Maximo de la FO': oMax, 'Valor Minimo de la FO': oMin, \
                           'Cromosoma de mayor FO': gMax})
 
-    Tabla = pd.ExcelWriter(r'D:\Users\nicol\Escritorio\Geneticos.xlsx', engine='xlsxwriter')
+    Tabla = pd.ExcelWriter(r'C:\Users\barbi\OneDrive\Escritorio\AG\Geneticos.xlsx', engine='xlsxwriter')
     Datos.to_excel(Tabla, sheet_name='Valores', index=False)
     workbook = Tabla.book
     worksheet = Tabla.sheets["Valores"]
@@ -282,12 +282,12 @@ if __name__ == '__main__':
 
     poblacion = generarPoblacion()  # Genera la poblacion incial
     # Inicializa listas
-    vProm = []
-    oProm = []
-    fProm = []
-    gMax = []
-    oMax = []
-    oMin = []
+    vProm = [] #valor promedio
+    oProm = [] #valor de funcion de objetivo promedio
+    fProm = [] #fitness promedio
+    gMax = []  #genes de cromosoma max
+    oMax = []  #valor de funcion objetivo promedio
+    oMin = []  #valor de funcion objetivo minimo
     generaciones = []
     count = 0  # Contador de veces que el promedio de la funcion objetivo fue mayor a 0.99
     for i in range(ciclos):
@@ -301,7 +301,9 @@ if __name__ == '__main__':
         funcionesObjetivos = []
         for crom in poblacion:
             funcionesObjetivos.append(crom.funcObjetivo())
-        totalObj = sum(funcionesObjetivos)  # Calcula la suma de funciones objetivo para poder calcular la fitnes
+
+        totalObj = sum(funcionesObjetivos)  # Calcula la suma de funciones objetivo para poder calcular la fitness
+
         for crom in poblacion:
             crom.funcFitness(totalObj)  # Calcula la fitness de todos los cromosomas
             if crom.objetivo > maxO:  # Compara si es la funcion objetivo maxima o minima
@@ -310,6 +312,7 @@ if __name__ == '__main__':
             if crom.objetivo < minO:
                 minO = copy.copy(crom.objetivo)
             f += crom.fitness
+
         # Agregan valores de este ciclo a las listas
         generaciones.append(i)
         vProm.append(mediaValor(poblacion))
@@ -336,5 +339,5 @@ if __name__ == '__main__':
     # Cuando se cierra la grafica se ejecuta esto que borra el excel para no llenar de excels el escritorio
     print('Pulse una tecla para finalizar el programa y eliminar el archivo de excel generado')
     # input()
-    os.remove(r'D:\Users\nicol\Escritorio\Geneticos.xlsx')
+    os.remove(r'C:\Users\barbi\OneDrive\Escritorio\AG\Geneticos.xlsx')
     print('Excel eliminado')
