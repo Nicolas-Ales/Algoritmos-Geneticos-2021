@@ -1,9 +1,10 @@
 from collections import namedtuple
 
-Elemento = namedtuple('elemento', ['id', 'valor', 'volumen', 'vv'])
+#Creo namedtuple con los atributos de los elementos
+Elemento = namedtuple('elemento', ['id', 'valor', 'espacioOcupado', 've'])
 
 #Inicializo los elementos en la namedtuple
-elementos = [
+elementos1 = [
     Elemento(1, 20, 150, 0),
     Elemento(2, 40, 325, 0),
     Elemento(3, 50, 600, 0),
@@ -17,5 +18,16 @@ elementos = [
 ]
 
 #Calculo el $valor/volumen con 3 decimales de exactitud
-for i in range(0, len(elementos)):
-    elementos[i] = elementos[i]._replace(vv = '%.3f'%(elementos[i].valor / elementos[i].volumen))
+for i in range(0, len(elementos1)):
+    elementos1[i] = elementos1[i]._replace(ve = '%.3f'%(elementos1[i].valor / elementos1[i].espacioOcupado))
+
+
+elementos2 = [
+    Elemento(1, 72, 1800, 0),
+    Elemento(2, 36, 600, 0),
+    Elemento(3, 60, 1200, 0)
+]
+
+#Calculo el $valor/peso con 3 decimales de exactitud
+for i in range(0, len(elementos2)):
+    elementos2[i] = elementos2[i]._replace(ve = '%.3f'%(elementos2[i].valor / elementos2[i].espacioOcupado))
