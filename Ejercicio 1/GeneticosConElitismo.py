@@ -36,6 +36,8 @@ from numpy import mean
 elitismo = False
 convergencia = False
 ciclos = 200
+tipoSeleccion = 1 #Torneo = 1 | Ruleta = 0
+torneoParticipantes = 3
 
 probabilidadCrossover = 0.75
 probabilidadMutacion = 0.05
@@ -75,7 +77,6 @@ class Cromosoma:
     def funcFitness(self, total):
         self.fitness = self.funcObjetivo() / total
         return self.fitness
-
 
 def generarPoblacion():
     poblacion = []
@@ -152,16 +153,34 @@ def seleccion(poblacion):
                 nuevaGeneracion.append(cElite)
             else:
                 # Con la funcion ruleta recibe un cromosoma para la nueva generacion
-                c = copy.deepcopy(torneo(poblacion))
+                if tipoSeleccion == 0:
+                    c = copy.deepcopy(ruleta(poblacion)) #Llama al metodo ruleta para hacer la seleccion
+                elif tipoSeleccion == 1:
+                    c = copy.deepcopy(torneo(poblacion)) #Llama al metodo torneo para hacer la seleccion
                 nuevaGeneracion.append(c)
             k += 1
     else:
         for _ in poblacion:
             # Con la funcion ruleta recibe un cromosoma para la nueva generacion
-            cRep = ruleta(poblacion)
+            if tipoSeleccion == 0:
+                cRep = ruleta(poblacion) #Llama al metodo ruleta para hacer la seleccion
+            elif tipoSeleccion == 1:
+                cRep = torneo(poblacion) #Llama al metodo torneo para hacer la seleccion
             c = copy.deepcopy(cRep)
             nuevaGeneracion.append(c)
     return nuevaGeneracion
+
+#Seleccion por medio de Torneo
+def torneo(poblacion):
+    nroCompetidores = torneoParticipantes     #el nro de cromosomas que van a participar en el torneo
+    random.shuffle(poblacion)
+    competidores = []
+    for i in range(nroCompetidores): 
+        competidores.append(poblacion[i]) #meto los tres primeros cromosomas de una poblacion en la lista competidores
+    competidores.sort(key = lambda cromosoma: cromosoma.fitness, reverse = True) #ordena los cromosomas de forma descendiente por fitness
+    return competidores[0]
+
+
 
 
 # Devuelve un cromosoma utilizando el metodo de la ruleta
@@ -188,7 +207,7 @@ def crossover(poblacion):
                 nuevaGeneracion.append(cElit)
                 poblacion.remove(cElit)
         rango = poblacionInicial - (int)(poblacionInicial * 0.2)
-        # poblacion = random.shuffle(poblacion)
+        random.shuffle(poblacion)
     for _ in range((int)(rango / 2)):
         padre1 = poblacion.pop(random.randrange(0,len(poblacion)))
         padre2 = poblacion.pop(random.randrange(0,len(poblacion)))
