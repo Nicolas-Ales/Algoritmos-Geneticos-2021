@@ -1,7 +1,7 @@
 from TP2.Elementos import *
 from TP2.Mochila import *
 
-exhaustivo = False  # True para busqueda exhaustiva | False para Algoritmo Greedy
+exhaustivo = True  # True para busqueda exhaustiva | False para Algoritmo Greedy
 volumen = False  # True para el primer set de items | False para el segundo set de items
 
 

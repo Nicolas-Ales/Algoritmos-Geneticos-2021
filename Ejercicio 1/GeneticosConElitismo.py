@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import copy
 from numpy import mean
 
-elitismo = False
+elitismo = True
 convergencia = False
 ciclos = 200
 tipoSeleccion = 1 #Torneo = 1 | Ruleta = 0
@@ -148,7 +148,7 @@ def seleccion(poblacion):
         k = 0
         # hace que el 20% de la poblacion pase a la siguiente generacion empezando por los mejores
         for cRep in poblacion:
-            if k <= poblacionInicial * 0.2:
+            if k < poblacionInicial * 0.2:
                 cElite = copy.copy(cRep)
                 nuevaGeneracion.append(cElite)
             else:
@@ -236,7 +236,7 @@ def mutacion(poblacion):
         poblacion.sort(key=lambda cromosoma: cromosoma.objetivo,
                        reverse=True)  # Ordena los cromosomas por funcion objetivo
         for cMut in poblacion:
-            if k <= poblacionInicial * 0.2:
+            if k < poblacionInicial * 0.2:
                 nuevaGeneracion.append(cMut)
             else:
                 if random.randint(0, 100) > probabilidadMutacion * 100:

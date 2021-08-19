@@ -46,15 +46,14 @@ class Mochila(object):
         esp = 0
         i = 0
         if (self.volumen):  # Distincion entre ejercicio 1 y 2
-            while (esp <= Mochila.volumenMax):      # mientras el volumen no supere al maximo
+            while (esp <= Mochila.volumenMax+1):      # mientras el volumen no supere al maximo
                 contenido.append(self.elementos[i]) # agrega al proximo objeto con mejor valor efectivo
                 esp += contenido[i].espacioOcupado  # suma el volumen del nuevo objeto a la machila
                 i += 1
         else:
-            while (esp <= Mochila.pesoMax):         # mientras el volumen no supere al maximo
+            while (esp <= Mochila.pesoMax+1):         # mientras el volumen no supere al maximo
                 contenido.append(self.elementos[i]) # agrega al proximo objeto con mejor valor efectivo
                 esp += contenido[i].espacioOcupado  # suma el volumen del nuevo objeto a la machila
                 i += 1
         contenido.pop()
         return contenido
-        # este while no esta parando cuando lo necesito
