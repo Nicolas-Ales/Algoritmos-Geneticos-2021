@@ -1,8 +1,11 @@
 from TP3.Datos import *
+from TP3.Funciones import *
 
 print('id\tNombre de la Capital')
+tabla = PrettyTable(['Capital','Id'])
 for c in capitales:
-    print(c.id,'\t',c.Nombre)
+    tabla.add_row([c.Nombre,c.id])
+print(tabla)
 seleccionCapital = int(input('Seleccione capital desde la que desea partir (por id): '))
 print('Seleccionó ', capitales[seleccionCapital].Nombre)
 print('Seleccione un método para la obtención del camino mínimo: ')
@@ -21,3 +24,7 @@ elif metodo == 2:
 elif metodo == 3:
     #resultado = Heuristico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
     print('Seleccionó Heurístico')
+
+resultado = list(range(24)) #Esta es una lista de prueba para testear el muestra datos
+resultado.append(resultado[0]) #Con esto resolvemos el que tenga qu evolver, al menos para la parte visual
+MuestraDatos(resultado,capitales)
