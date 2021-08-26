@@ -1,5 +1,8 @@
 from prettytable import PrettyTable
 import cv2
+from numpy import random
+from TP3 import *
+import copy
 
 
 def Exhaustivo():
@@ -10,9 +13,66 @@ def Heuristico():
     pass
 
 
-def Genetico():
-    pass
+def Genetico(capitales, nroPoblacion, nroCiclos, ruleta):
+    generaciones = []
+    poblacion = GeneroPoblacion(capitales, nroPoblacion)
 
+    for i in range(nroCiclos):
+        funcionesObj = []
+        # Hago una lista con todas las funciones objetivo
+        for crom in poblacion:
+            funcionesObj.append(crom.getFuncObj(capitales))
+        # Sumo el valor de todas las funciones para calcular el fitness
+        totalObj = sum(funcionesObj)
+        # Calculo la funcion fitness de cada cromosoma
+        for crom in poblacion:
+            crom.getFuncFitness(totalObj, capitales)
+
+        generaciones.append(i)
+        poblacion = seleccion(poblacion)
+        poblacion = crossover(poblacion)
+        poblacion = mutacion(poblacion)
+
+
+def GeneroPoblacion(capitales, nroPoblacion):
+    poblacion = []
+    for _ in range(nroPoblacion):
+        poblacion.append(Cromosoma(capitales))
+    return poblacion
+
+def seleccion(poblacion, ruleta):
+    nuevaGeneracion = []
+    for _ in poblacion:
+        if ruleta:                     # Llama al metodo ruleta para hacer la seleccion
+            cRep = ruleta(poblacion)
+        else:                           # Llama al metodo torneo para hacer la seleccion
+            cRep = torneo(poblacion)
+        c = copy.deepcopy(cRep)
+        nuevaGeneracion.append(cRep)
+    return nuevaGeneracion
+
+# Seleccion por medio de Ruleta
+def ruleta(poblacion):
+    sumaFitness = sum(crom.fitness for crom in poblacion)       # Suma las funciones fitness para sacar un nro entre
+                                                                # cero y la suma total
+    pick = random.uniform(0, sumFitness)
+    current = 0
+    for cRul in poblacion:              # Cada cromosoma tiene un rango dependiendo de su funcion fitness.
+        current += cRul.fitness         # Cuando el nro random este dentor del rango del cromosoma especifico
+        if cRul > pick:                 # devolvera ese cromosoma
+            return cRul
+
+# Seleccion por medio de Torneo
+def torneo(poblacion):
+    nroCompetidores = 17                # ¿Hecemos que esta sea una variable global p/ elegir?
+    random.shuffle(poblacion)
+    competidores = []
+    # Meto los primeros 17 cromosomas dentro de la lista de competidores
+    for i in range(poblacion):
+        competidores.append(i)
+    # Ordeno los cromosomas de forma descendiente segun su fitness
+    competidores.sort(key = lambda cromosoma: cromosoma.fitness, reverse = True)
+    return competidores[0]
 
 def MuestraDatos(seleccion, capitales):
     print('Camino Seleccionado:')
