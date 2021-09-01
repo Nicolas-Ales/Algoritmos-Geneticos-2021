@@ -1,6 +1,15 @@
 from TP3.Datos import *
 from TP3.Funciones import *
 
+
+nroPoblacion = 50
+nroCiclos = 200
+elitismo = True
+ruleta = True
+
+probCrossover = 0.5
+probMutacion = 0.5
+
 print('id\tNombre de la Capital')
 tabla = PrettyTable(['Capital', 'Id'])
 for c in capitales:
@@ -20,6 +29,7 @@ if metodo == 1:
     print('Seleccionó Exhaustivo')
 elif metodo == 2:
     # resultado = Genetico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
+    # resultado = Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion)
     print('Seleccionó Genético')
 elif metodo == 3:
     # resultado = Heuristico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
