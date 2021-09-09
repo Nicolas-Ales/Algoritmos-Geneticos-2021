@@ -10,8 +10,31 @@ def Exhaustivo():
     pass
 
 
-def Heuristico():
-    pass
+def Heuristico(listCapitales, seleccionCapital):
+    recorrido = []
+    distanciaRecorrida = 0
+
+    idCapitalDeOrigen = seleccionCapital
+    
+    recorrido.append(idCapitalDeOrigen) #Añado al inicio la ciudad de origen.
+
+    
+    while len(recorrido) < 24 :
+        distMinima = float('inf')
+        idDistMin = None
+        for capital, distancia in enumerate(listCapitales[recorrido[-1]].Distancias):
+            if capital not in recorrido and distancia < distMinima:  
+              distMinima = distancia
+              idDistMin = capital      
+        recorrido.append(idDistMin)
+        distanciaRecorrida += distMinima
+
+    distanciaRecorrida = distanciaRecorrida + (listCapitales[idDistMin].Distancias[idCapitalDeOrigen]) # sumo la distancia entre la última del recorrido y la de origen.
+    recorrido.append(idCapitalDeOrigen) #agrego la vuelta a la capital de origen.
+
+    print('La distancia total recorrida es ' + str(distanciaRecorrida) + ' para el recorrido: ')
+    
+    return recorrido
 
 
 def Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion):

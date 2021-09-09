@@ -32,7 +32,7 @@ elif metodo == 2:
     # resultado = Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion)
     print('Seleccionó Genético')
 elif metodo == 3:
-    # resultado = Heuristico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
+    resultado = Heuristico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
     print('Seleccionó Heurístico')
 
 resultado = list(range(24))  # Esta es una lista de prueba para testear el muestra datos
