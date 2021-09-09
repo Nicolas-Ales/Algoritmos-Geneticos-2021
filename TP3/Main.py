@@ -32,8 +32,10 @@ elif metodo == 2:
     # resultado = Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion)
     print('Seleccionó Genético')
 elif metodo == 3:
-    resultado = Heuristico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
+    resultado1 = Heuristico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
     print('Seleccionó Heurístico')
+
+print(resultado1) #Print de prueba para el metodo Heurístico 
 
 resultado = list(range(24))  # Esta es una lista de prueba para testear el muestra datos
 resultado.append(resultado[0])  # Con esto resolvemos el que tenga qu evolver, al menos para la parte visual
