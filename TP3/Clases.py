@@ -36,4 +36,4 @@ class Cromosoma:
 
     def cambiarGenes(self, genes):
         self.genes = genes
-        self.objetivo = getFuncObjetivo(self, genes)
+        self.objetivo = self.getFuncObjetivo(self, genes)
