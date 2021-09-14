@@ -2,30 +2,38 @@ from prettytable import PrettyTable
 import cv2
 from numpy import random
 import random as rd
-from TP3 import *
+import Clases, Datos
 import copy
 
 
 def Exhaustivo():
     pass
 
+def SeleccionCapital(listadoCapitales):
+    #Muestra tabla con ID y Nombre de las capitales y habilita la selección de una como capital de origen.
+    print('id\tNombre de la Capital')
+    tabla = PrettyTable(['Capital', 'Id'])
+    for c in listadoCapitales:
+        tabla.add_row([c.Nombre, c.id])
+    print(tabla)
+    numIDCapitalSeleccionada = int(input('Seleccione capital desde la que desea partir (por id): '))
+    print('Seleccionó '+listadoCapitales[numIDCapitalSeleccionada].Nombre+' como capital de origen.')
+    iDCapitalSeleccionada = listadoCapitales[numIDCapitalSeleccionada].id
+    return iDCapitalSeleccionada
 
-def Heuristico(listCapitales, seleccionCapital):
+def Heuristico(listCapitales, idCapitalDeOrigen):
     recorrido = []
     distanciaRecorrida = 0
+    recorrido.append(idCapitalDeOrigen) #Añado al inicio del recorrido la ciudad de origen.
 
-    idCapitalDeOrigen = seleccionCapital
-    
-    recorrido.append(idCapitalDeOrigen) #Añado al inicio la ciudad de origen.
-
-    
+    #Establezco limites del recorrido, me paro en la ultima capital del recorrido y busco su distancia minima o capital más cercana.
     while len(recorrido) < 24 :
         distMinima = float('inf')
-        idDistMin = None
-        for capital, distancia in enumerate(listCapitales[recorrido[-1]].Distancias):
-            if capital not in recorrido and distancia < distMinima:  
+        idDistMin = None #esta variable va a determinar a que capital corresponde la distancia minima.
+        for indiceDistancia, distancia in enumerate(listCapitales[recorrido[-1]].Distancias):  #NOTA: indiceDistancia coincide con idCapital pero no son lo mismo.
+            if listCapitales[indiceDistancia].id not in recorrido and distancia < distMinima:  #si hay dos capitales a una misma distancia, vamos a la primera enumerada.
               distMinima = distancia
-              idDistMin = capital      
+              idDistMin = listCapitales[indiceDistancia].id      
         recorrido.append(idDistMin)
         distanciaRecorrida += distMinima
 
@@ -34,7 +42,32 @@ def Heuristico(listCapitales, seleccionCapital):
 
     print('La distancia total recorrida es ' + str(distanciaRecorrida) + ' para el recorrido: ')
     
-    return recorrido
+    return recorrido, distanciaRecorrida
+
+
+def CaminoMinimo(listCapitales):
+    #Ejecuto el método heurístico y guardo sus resultados para cada capital.
+    listRecorridos = []
+    listDistanciasTotales = []
+    for capital in listCapitales:
+        resultadoHeuristico = Heuristico(listCapitales, capital.id) #Recibo la tupla de resultados (listadoRecorrido y distanciaDelRecorrido)
+        listRecorridos.append(resultadoHeuristico[0]) #Se guardan los datos en dos listas con un indice paralelo.
+        listDistanciasTotales.append(resultadoHeuristico[1])
+    #Busco cual es el resultado mínimo de distancias y guardo su índice.
+    distanciaMinima = float('inf')
+    indiceDistanciaMin = None
+    for indiceDistancia, distancia in enumerate(listDistanciasTotales):
+        if distancia < distanciaMinima:
+            distanciaMinima = distancia
+            indiceDistanciaMin = indiceDistancia
+    #devuelvo la distancia del recorrido y el recorrido realizado que es el mínimo posible entre todos los Heurísticos.        
+    print('La distancia minima recorrida para el recorrido nro'+str(indiceDistanciaMin)+' es: '+str(distanciaMinima)+ '\n')
+    return listRecorridos[indiceDistanciaMin]
+
+
+
+
+
 
 
 def Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion):
