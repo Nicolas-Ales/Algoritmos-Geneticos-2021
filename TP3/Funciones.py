@@ -5,6 +5,8 @@ import random as rd
 from TP3 import *
 import copy
 
+from TP3.Clases import Cromosoma
+
 
 def Exhaustivo():
     pass
@@ -55,7 +57,7 @@ def Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover
         maxCrom = []
         # Hago una lista con todas las funciones objetivo
         for crom in poblacion:
-            funcionesObj.append(crom.getFuncObj(capitales))
+            funcionesObj.append(crom.getFuncObjetivo(capitales))
 
         # Sumo el valor de todas las funciones para calcular el fitness
         totalObj = sum(funcionesObj)
@@ -89,15 +91,15 @@ def GeneroPoblacion(capitales, nroPoblacion):
         poblacion.append(Cromosoma(capitales))
     return poblacion
 
-def seleccion(poblacion, ruleta, elitismo, nroPoblacion):
+def seleccion(poblacion, elitismo, nroPoblacion):
     nuevaGeneracion = []
 
     if elitismo:
         poblacion.sort(key = lambda cromosoma: cromosoma.objetivo, reverse = True) # Ordeno de menor a mayor? Preguntar
         k = 0
         # Si se usa elitismo, el 20% de la poblacion que tenga el menor? de objetivo pasara a la prox generacion
-        for crom in nroPoblacion:
-            if k < poblacion * 0.2:
+        for crom in poblacion:
+            if k < len(poblacion)* 0.2:
                 cElite = copy.copy(crom)
                 nuevaGeneracion.append(cElite)
             else:   # Una vez que el 20% de la poblacion pasa a la prox generacion, se utiliza el metodo de 
@@ -123,13 +125,13 @@ def seleccion(poblacion, ruleta, elitismo, nroPoblacion):
 
 # Seleccion por medio de Ruleta
 def ruleta(poblacion):
-    sumaFitness = sum(crom.fitness for crom in poblacion)       # Suma las funciones fitness para sacar un nro entre
+    sumFitness = sum(crom.fitness for crom in poblacion)       # Suma las funciones fitness para sacar un nro entre
                                                                 # cero y la suma total
     pick = random.uniform(0, sumFitness)
     current = 0
     for cRul in poblacion:              # Cada cromosoma tiene un rango dependiendo de su funcion fitness.
         current += cRul.fitness         # Cuando el nro random este dentor del rango del cromosoma especifico
-        if cRul > pick:                 # devolvera ese cromosoma
+        if cRul.fitness > pick:                 # devolvera ese cromosoma
             return cRul
 
 # Seleccion por medio de Torneo
