@@ -30,7 +30,7 @@ elif metodo == 3:
     print('Seleccionó Camino Mínimo con Heurístico.')
 elif metodo == 4:
     # resultado = Genetico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
-    # resultado = Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion)
+    resultado = Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion)
     print('Seleccionó Genético')
 
 
