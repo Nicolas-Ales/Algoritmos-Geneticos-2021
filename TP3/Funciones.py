@@ -1,86 +1,96 @@
 from prettytable import PrettyTable
 import cv2
 from numpy import random
-import random as rd
-import Clases, Datos
+import random
 import copy
-
 from TP3.Clases import Cromosoma
 
 
 def Exhaustivo():
     pass
 
+
 def SeleccionCapital(listadoCapitales):
-    #Muestra tabla con ID y Nombre de las capitales y habilita la selección de una como capital de origen.
+    # Muestra tabla con ID y Nombre de las capitales y habilita la selección de una como capital de origen.
     print('id\tNombre de la Capital')
     tabla = PrettyTable(['Capital', 'Id'])
     for c in listadoCapitales:
         tabla.add_row([c.Nombre, c.id])
     print(tabla)
     numIDCapitalSeleccionada = int(input('Seleccione capital desde la que desea partir (por id): '))
-    print('Seleccionó '+listadoCapitales[numIDCapitalSeleccionada].Nombre+' como capital de origen.')
+    print('Seleccionó ' + listadoCapitales[numIDCapitalSeleccionada].Nombre + ' como capital de origen.')
     iDCapitalSeleccionada = listadoCapitales[numIDCapitalSeleccionada].id
     return iDCapitalSeleccionada
+
 
 def Heuristico(listCapitales, idCapitalDeOrigen):
     recorrido = []
     distanciaRecorrida = 0
-    recorrido.append(idCapitalDeOrigen) #Añado al inicio del recorrido la ciudad de origen.
+    recorrido.append(idCapitalDeOrigen)  # Añado al inicio del recorrido la ciudad de origen.
 
-    #Establezco limites del recorrido, me paro en la ultima capital del recorrido y busco su distancia minima o capital más cercana.
-    while len(recorrido) < 24 :
+    # Establezco limites del recorrido, me paro en la ultima capital del recorrido y busco su distancia minima o capital más cercana.
+    while len(recorrido) < 24:
         distMinima = float('inf')
-        idDistMin = None #esta variable va a determinar a que capital corresponde la distancia minima.
-        for indiceDistancia, distancia in enumerate(listCapitales[recorrido[-1]].Distancias):  #NOTA: indiceDistancia coincide con idCapital pero no son lo mismo.
-            if listCapitales[indiceDistancia].id not in recorrido and distancia < distMinima:  #si hay dos capitales a una misma distancia, vamos a la primera enumerada.
-              distMinima = distancia
-              idDistMin = listCapitales[indiceDistancia].id      
+        idDistMin = None  # esta variable va a determinar a que capital corresponde la distancia minima.
+        for indiceDistancia, distancia in enumerate(listCapitales[recorrido[
+            -1]].Distancias):  # NOTA: indiceDistancia coincide con idCapital pero no son lo mismo.
+            if listCapitales[
+                indiceDistancia].id not in recorrido and distancia < distMinima:  # si hay dos capitales a una misma distancia, vamos a la primera enumerada.
+                distMinima = distancia
+                idDistMin = listCapitales[indiceDistancia].id
         recorrido.append(idDistMin)
         distanciaRecorrida += distMinima
 
-    distanciaRecorrida = distanciaRecorrida + (listCapitales[idDistMin].Distancias[idCapitalDeOrigen]) # sumo la distancia entre la última del recorrido y la de origen.
-    recorrido.append(idCapitalDeOrigen) #agrego la vuelta a la capital de origen.
+    distanciaRecorrida = distanciaRecorrida + (listCapitales[idDistMin].Distancias[
+        idCapitalDeOrigen])  # sumo la distancia entre la última del recorrido y la de origen.
+    recorrido.append(idCapitalDeOrigen)  # agrego la vuelta a la capital de origen.
 
     print('La distancia total recorrida es ' + str(distanciaRecorrida) + ' para el recorrido: ')
-    
+
     return recorrido, distanciaRecorrida
 
 
 def CaminoMinimo(listCapitales):
-    #Ejecuto el método heurístico y guardo sus resultados para cada capital.
+    # Ejecuto el método heurístico y guardo sus resultados para cada capital.
     listRecorridos = []
     listDistanciasTotales = []
     for capital in listCapitales:
-        resultadoHeuristico = Heuristico(listCapitales, capital.id) #Recibo la tupla de resultados (listadoRecorrido y distanciaDelRecorrido)
-        listRecorridos.append(resultadoHeuristico[0]) #Se guardan los datos en dos listas con un indice paralelo.
+        resultadoHeuristico = Heuristico(listCapitales,
+                                         capital.id)  # Recibo la tupla de resultados (listadoRecorrido y distanciaDelRecorrido)
+        listRecorridos.append(resultadoHeuristico[0])  # Se guardan los datos en dos listas con un indice paralelo.
         listDistanciasTotales.append(resultadoHeuristico[1])
-    #Busco cual es el resultado mínimo de distancias y guardo su índice.
+    # Busco cual es el resultado mínimo de distancias y guardo su índice.
     distanciaMinima = float('inf')
     indiceDistanciaMin = None
     for indiceDistancia, distancia in enumerate(listDistanciasTotales):
         if distancia < distanciaMinima:
             distanciaMinima = distancia
             indiceDistanciaMin = indiceDistancia
-    #devuelvo la distancia del recorrido y el recorrido realizado que es el mínimo posible entre todos los Heurísticos.        
-    print('La distancia minima recorrida para el recorrido nro'+str(indiceDistanciaMin)+' es: '+str(distanciaMinima)+ '\n')
+    # devuelvo la distancia del recorrido y el recorrido realizado que es el mínimo posible entre todos los Heurísticos.
+    print('La distancia minima recorrida para el recorrido nro' + str(indiceDistanciaMin) + ' es: ' + str(
+        distanciaMinima) + '\n')
     return listRecorridos[indiceDistanciaMin]
 
 
+def actualizaObjetivo(poblacion,capitales):
+    for s in poblacion:
+        s.getFuncObjetivo(capitales)
 
 
-
-
-
-def Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover, probMutacion):
+def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMutacion):
     generaciones = []
     poblacion = GeneroPoblacion(capitales, nroPoblacion)
-    funcObjProm = []    # Valor de funcion objetivo promedio
-    fitnessProm = []    # Valor de fitness promedio
-    cromMax = []        # Cromosoma maximo
-    funcObjMax = []     # Valor promedio de funcion objetivo maxima
-    funcObjMin = []     # Valor promedio de funcion objetivo minima
+    funcObjProm = []  # Valor de funcion objetivo promedio
+    fitnessProm = []  # Valor de fitness promedio
+    cromMax = []  # Cromosoma maximo
+    funcObjMax = []  # Valor promedio de funcion objetivo maxima
+    funcObjMin = []  # Valor promedio de funcion objetivo minima
 
+    FO =[]
+    for crom in poblacion:
+        FO.append(crom.getFuncObjetivo(capitales))
+    bestFObj = min(FO)
+    bestSeleccion = poblacion[FO.index(bestFObj)]
 
     for i in range(nroCiclos):
         funcionesObj = []
@@ -105,18 +115,31 @@ def Genetico(capitales, nroPoblacion, nroCiclos, ruleta, elitismo, probCrossover
                 minO = copy.copy(crom.objetivo)
             f += crom.fitness
 
+        #Reviso si hay algun camino con menor distancia que el mejor que tengo
+        for f in funcionesObj:
+            if f < bestFObj:
+                bestFObj = f
+                bestSeleccion = poblacion[funcionesObj.index(f)]
+
         generaciones.append(i)
         funcObjMax.append(maxO)
         funcObjMin.append(minO)
         cromMax.append(maxCrom)
-        funcObjProm.append(sum(crom.objetivo for crom in poblacion)/len(poblacion))
-        fitnessProm.append(f/nroPoblacion)
+        funcObjProm.append(sum(crom.objetivo for crom in poblacion) / len(poblacion))
+        fitnessProm.append(f / nroPoblacion)
+        poblacion = seleccion(poblacion, elitismo)
+        print(i)
+        print("selecciona")
+        poblacion = crossover(poblacion, elitismo, probCrossover)
+        print("crossover")
+        poblacion = mutacion(poblacion, probMutacion)
+        print("mutacion")
+        actualizaObjetivo(poblacion, capitales)
+    return bestSeleccion.genes
 
-
-        poblacion = seleccion(poblacion, elitismo, nroPoblacion)
-        poblacion = crossover(poblacion)
-        poblacion = mutacion(poblacion)
-
+def muestraCromosomas(poblacion):
+    for i,c in enumerate(poblacion):
+        print(i,': ',c.genes, ' ', c.objetivo)
 
 def GeneroPoblacion(capitales, nroPoblacion):
     poblacion = []
@@ -124,59 +147,40 @@ def GeneroPoblacion(capitales, nroPoblacion):
         poblacion.append(Cromosoma(capitales))
     return poblacion
 
-def seleccion(poblacion, elitismo, nroPoblacion):
+def seleccion(poblacion, elitismo):
     nuevaGeneracion = []
-
     if elitismo:
-        poblacion.sort(key = lambda cromosoma: cromosoma.objetivo, reverse = True) # Ordeno de menor a mayor? Preguntar
+        poblacion.sort(key=lambda cromosoma: cromosoma.objetivo, )  # Ordeno de menor a mayor
         k = 0
         # Si se usa elitismo, el 20% de la poblacion que tenga el menor? de objetivo pasara a la prox generacion
         for crom in poblacion:
-            if k < len(poblacion)* 0.2:
+            if k < len(poblacion) * 0.2:
                 cElite = copy.copy(crom)
                 nuevaGeneracion.append(cElite)
-            else:   # Una vez que el 20% de la poblacion pasa a la prox generacion, se utiliza el metodo de 
-                    # ruleta o torneo para seleccionar el resto
-                for _ in poblacion:
-                    if ruleta:                     # Llama al metodo ruleta para hacer la seleccion
-                        cRep = ruleta(poblacion)
-                    else:                           # Llama al metodo torneo para hacer la seleccion
-                        cRep = torneo(poblacion)
-                    c = copy.deepcopy(cRep)
-                    nuevaGeneracion.append(cRep)
+            else:  # Una vez que el 20% de la poblacion pasa a la prox generacion, se utiliza el metodo de
+                # torneo para seleccionar el resto
+                cRep = torneo(poblacion)  # Llama al metodo torneo para hacer la seleccion
+                c = copy.deepcopy(cRep)
+                nuevaGeneracion.append(c)
             k += 1
     else:
         for _ in poblacion:
-            if ruleta:                     # Llama al metodo ruleta para hacer la seleccion
-                cRep = ruleta(poblacion)
-            else:                           # Llama al metodo torneo para hacer la seleccion
-                cRep = torneo(poblacion)
+            cRep = torneo(poblacion)  # Llama al metodo torneo para hacer la seleccion
             c = copy.deepcopy(cRep)
-            nuevaGeneracion.append(cRep)
-
+            nuevaGeneracion.append(c)
     return nuevaGeneracion
 
-# Seleccion por medio de Ruleta
-def ruleta(poblacion):
-    sumFitness = sum(crom.fitness for crom in poblacion)       # Suma las funciones fitness para sacar un nro entre
-                                                                # cero y la suma total
-    pick = random.uniform(0, sumFitness)
-    current = 0
-    for cRul in poblacion:              # Cada cromosoma tiene un rango dependiendo de su funcion fitness.
-        current += cRul.fitness         # Cuando el nro random este dentor del rango del cromosoma especifico
-        if cRul.fitness > pick:                 # devolvera ese cromosoma
-            return cRul
 
 # Seleccion por medio de Torneo
 def torneo(poblacion):
-    nroCompetidores = 17                # ¿Hecemos que esta sea una variable global p/ elegir?
+    nroCompetidores = 2  # ¿Hecemos que esta sea una variable global p/ elegir?
     random.shuffle(poblacion)
     competidores = []
     # Meto los primeros 17 cromosomas dentro de la lista de competidores
-    for i in range(poblacion):
-        competidores.append(i)
+    for i in range(nroCompetidores):
+        competidores.append(poblacion[i])
     # Ordeno los cromosomas de forma descendiente segun su fitness
-    competidores.sort(key = lambda cromosoma: cromosoma.fitness, reverse = True)
+    competidores.sort(key=lambda cromosoma: cromosoma.fitness, reverse=True)
     return competidores[0]
 
 def mutacion(poblacion, probMutacion):
@@ -184,29 +188,68 @@ def mutacion(poblacion, probMutacion):
 
     for crom in poblacion:
         # Me fijo en la probabilidad de que suceda la mutacion
-        if random.uniform(0,1) > probMutacion:
+        if random.uniform(0, 1) > probMutacion:
             nuevaPoblacion.append(crom)
         else:
             genesMutados = crom.genes
-            # Obtengo lista con dos numeros random del 0 al 23 no repetidos
-            nros = rd.sample(range(0, len(poblacion) - 1), 2) 
+            # Obtengo lista con dos numeros random del 0 al 23
+            n1 = random.randint(0,len(crom.genes)-1)
+            n2 = random.randint(0,len(crom.genes)-1)
             # Intercambio los valores de la lista en los lugares dados por los nros random
-            genesMutados[nros[0]], genesMutados[nros[1]] = genesMutados[nros[1]], genesMutados[nros[0]]
+            genesMutados[n1], genesMutados[n2] = genesMutados[n2], genesMutados[n1]
             crom.cambiarGenes(genesMutados)
             nuevaPoblacion.append(crom)
+    return nuevaPoblacion
+
+
+def crossover(poblacion, elitismo, probCrossover):
+    nuevaGeneracion = []
+    rango = len(poblacion)
+    if elitismo:
+        poblacion.sort(key=lambda cromosoma: cromosoma.objetivo)
+        for pos, cElit in enumerate(poblacion):
+            if pos < rango * 0.2:
+                nuevaGeneracion.append(cElit)
+                poblacion.remove(cElit)
+        rango = (int)(rango * 0.8)
+        random.shuffle(poblacion)
+    for _ in range((int)(rango / 2)):
+        p1 = poblacion.pop(random.randrange(0, len(poblacion)))  # Padre 1: cromosoma
+        p2 = poblacion.pop(random.randrange(0, len(poblacion)))  # Padre 2: cromosoma
+        if random.uniform(0, 1) <= probCrossover:
+            c = 0  # Cursor
+            ciclos = []
+            x = 0
+            while sum([len(s) for s in ciclos]) == 24:
+                ciclo = []
+                while ciclo[0][0] == ciclo[x][1]:
+                    permutacion = [c, p2.index(
+                        p1[c])]  # Par con la pocicion del elemento c en p1 y la pocicion de ese elemento en p2
+                    ciclo.append(permutacion)
+                    c = ciclo[x][1]
+                    x += 1
+                ciclos.append(ciclo)
+            for m, ciclo in enumerate(ciclos):
+                if m % 2 == 0:
+                    cambios = [c[0] for c in ciclo]
+                    for i in cambios:
+                        p1[i], p2[i] = p2[i], p1[i]
+        nuevaGeneracion.extend([p1, p2])
+    return nuevaGeneracion
 
 
 def MuestraDatos(seleccion, capitales):
     print('Camino Seleccionado:')
     distancia = 0
-    tabla = PrettyTable(['Capital', 'Distancia Recorrida'])             #Crea una tabla para luego ser mostrada
-    for i in range(len(seleccion)):                                     #Recorre las ciudades seleccionadas
-        tabla.add_row([capitales[seleccion[i]].Nombre, str(distancia)]) #Agrega la fila a la tabla
-        if i < 24:                                            #Como estan descoordinadas a posta la tabla y la distancia
-                                                              # la ultima excederia la lista, por eso el if
-            distancia += capitales[seleccion[i]].Distancias[seleccion[i + 1]] #Suma la distancia entre la ciudad actual
-                                                                              # y siguiente a la total
-    print(tabla)                                                              #Muestra la tabla
+    tabla = PrettyTable(['Capital', 'Distancia Recorrida'])  # Crea una tabla para luego ser mostrada
+    for i in range(len(seleccion)):  # Recorre las ciudades seleccionadas
+        tabla.add_row([capitales[seleccion[i]].Nombre, str(distancia)])  # Agrega la fila a la tabla
+        if i < 24:  # Como estan descoordinadas a posta la tabla y la distancia
+            # la ultima excederia la lista, por eso el if
+            distancia += capitales[seleccion[i]].Distancias[
+                seleccion[i + 1]]  # Suma la distancia entre la ciudad actual
+            # y siguiente a la total
+    print(tabla)  # Muestra la tabla
     print('Distancia total del camino: ', distancia)
     MuestraMapa(seleccion, capitales)
 
@@ -219,7 +262,7 @@ def MuestraMapa(seleccion, capitales):
         (281, 105),  # 3  Formosa
         (274, 307),  # 4  La Plata
         (121, 192),  # 5  La Rioja
-        (85, 265),   # 6  Mendoza
+        (85, 265),  # 6  Mendoza
         (100, 403),  # 7  Neuqeun
         (239, 235),  # 8  Parana
         (327, 140),  # 9  Posadas
@@ -228,25 +271,27 @@ def MuestraMapa(seleccion, capitales):
         (115, 698),  # 12 Rio Gallegos
         (133, 160),  # 13 Catamarca
         (144, 126),  # 14 Tucuman
-        (145, 64),   # 15 Jujuy
-        (141, 74),   # 16 Salta
-        (87, 235),   # 17 San Juan
+        (145, 64),  # 15 Jujuy
+        (141, 74),  # 16 Salta
+        (87, 235),  # 17 San Juan
         (127, 269),  # 18 San Luis
         (233, 230),  # 19 Santa Fe
         (168, 350),  # 20 Santa Rosa
         (163, 143),  # 21 Santiago del Estero
         (139, 765),  # 22 Ushuaia
-        (188, 445),  # 23 Vietma
-    ]       #Lista con las coordenadas de cada ciudad en el mapa
-    imagen = cv2.resize(cv2.imread('mapa-provincias-argentina.png'), (454, 791)) #Carga la imagen del mapa y la redimenciona
-    for i in range(len(seleccion)):     #Recorre la lista con el orden seleccionado de las ciudades
-        if i <24:                       #Si no es la ultima ciudad dibuja la linea a la siguiente ciudad
+        (188, 445),  # 23 Viedma
+    ]  # Lista con las coordenadas de cada ciudad en el mapa
+    imagen = cv2.resize(cv2.imread('mapa-provincias-argentina.png'),
+                        (454, 791))  # Carga la imagen del mapa y la redimenciona
+    for i in range(len(seleccion)):  # Recorre la lista con el orden seleccionado de las ciudades
+        if i < 24:  # Si no es la ultima ciudad dibuja la linea a la siguiente ciudad
             cv2.line(imagen, coordenadas_capitales[capitales[seleccion[i]].id],
-                     coordenadas_capitales[capitales[seleccion[i + 1]].id], (255-i*10, i*10, i*10), 2)
-        else:                           #Si es la ultima ciudad dibuja una linea hasta la primera
+                     coordenadas_capitales[capitales[seleccion[i + 1]].id], (255 - i * 10, i * 10, i * 10), 2)
+        else:  # Si es la ultima ciudad dibuja una linea hasta la primera
             cv2.line(imagen, coordenadas_capitales[capitales[seleccion[i]].id],
-                     coordenadas_capitales[capitales[seleccion[0]].id], (255-i*10, i*10, i*10), 2)
-    for c in coordenadas_capitales:     #Recorre la lista de coordenadas de las capitales
-        cv2.circle(imagen, c, 4, (0, 0, 255), -1) #Dibuja un punto en cada capital
-    cv2.imshow('imagen', imagen)        #Muestra la imagen con los dibujos
-    cv2.waitKey(0)                      #Sin esta linea la ventana se cierra automaticamente
+                     coordenadas_capitales[capitales[seleccion[0]].id], (255 - i * 10, i * 10, i * 10), 2)
+    for c in coordenadas_capitales:  # Recorre la lista de coordenadas de las capitales
+        cv2.circle(imagen, c, 4, (0, 0, 255), -1)  # Dibuja un punto en cada capital
+    cv2.circle(imagen, coordenadas_capitales[seleccion[0]], 4, (255, 255, 0), -1)
+    cv2.imshow('imagen', imagen)  # Muestra la imagen con los dibujos
+    cv2.waitKey(0)  # Sin esta linea la ventana se cierra automaticamente

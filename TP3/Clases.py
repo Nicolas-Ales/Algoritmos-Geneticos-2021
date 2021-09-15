@@ -6,6 +6,7 @@ class Cromosoma:
         # OBTENGO UNA PERMUTACION DE LA LISTA DE CAPITALES
         self.genes = random.permutation(range(24))
         self.objetivo = self.getFuncObjetivo(capitales)
+        self.capitales = capitales
 
 
 
@@ -36,4 +37,4 @@ class Cromosoma:
 
     def cambiarGenes(self, genes):
         self.genes = genes
-        self.objetivo = self.getFuncObjetivo(self, genes)
+        self.objetivo = self.getFuncObjetivo(self.capitales)
