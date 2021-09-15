@@ -9,7 +9,6 @@ from TP3.Clases import Cromosoma
 def Exhaustivo():
     pass
 
-
 def SeleccionCapital(listadoCapitales):
     # Muestra tabla con ID y Nombre de las capitales y habilita la selección de una como capital de origen.
     print('id\tNombre de la Capital')
@@ -21,7 +20,6 @@ def SeleccionCapital(listadoCapitales):
     print('Seleccionó ' + listadoCapitales[numIDCapitalSeleccionada].Nombre + ' como capital de origen.')
     iDCapitalSeleccionada = listadoCapitales[numIDCapitalSeleccionada].id
     return iDCapitalSeleccionada
-
 
 def Heuristico(listCapitales, idCapitalDeOrigen):
     recorrido = []
@@ -49,7 +47,6 @@ def Heuristico(listCapitales, idCapitalDeOrigen):
 
     return recorrido, distanciaRecorrida
 
-
 def CaminoMinimo(listCapitales):
     # Ejecuto el método heurístico y guardo sus resultados para cada capital.
     listRecorridos = []
@@ -71,18 +68,16 @@ def CaminoMinimo(listCapitales):
         distanciaMinima) + '\n')
     return listRecorridos[indiceDistanciaMin]
 
-
 def actualizaObjetivo(poblacion,capitales):
     for s in poblacion:
         s.getFuncObjetivo(capitales)
-
 
 def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMutacion):
     generaciones = []
     poblacion = GeneroPoblacion(capitales, nroPoblacion)
     funcObjProm = []  # Valor de funcion objetivo promedio
     fitnessProm = []  # Valor de fitness promedio
-    cromMax = []  # Cromosoma maximo
+    cromMin = []  # Cromosoma minimo
     funcObjMax = []  # Valor promedio de funcion objetivo maxima
     funcObjMin = []  # Valor promedio de funcion objetivo minima
 
@@ -90,14 +85,14 @@ def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMu
     for crom in poblacion:
         FO.append(crom.getFuncObjetivo(capitales))
     bestFObj = min(FO)
-    bestSeleccion = poblacion[FO.index(bestFObj)]
+    bestSeleccion = poblacion[FO.index(bestFObj)].genes
 
     for i in range(nroCiclos):
         funcionesObj = []
         f = 0
         maxO = 0
-        minO = 1
-        maxCrom = []
+        minO = 99999
+        minCrom = []
         # Hago una lista con todas las funciones objetivo
         for crom in poblacion:
             funcionesObj.append(crom.getFuncObjetivo(capitales))
@@ -110,32 +105,32 @@ def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMu
             crom.getFuncFitness(totalObj, capitales)
             if crom.objetivo > maxO:
                 maxO = copy.copy(crom.objetivo)
-                maxCrom = copy.copy(crom.objetivo)
             if crom.objetivo < minO:
                 minO = copy.copy(crom.objetivo)
+                minCrom = copy.copy(crom.genes)
             f += crom.fitness
 
         #Reviso si hay algun camino con menor distancia que el mejor que tengo
-        for f in funcionesObj:
-            if f < bestFObj:
-                bestFObj = f
-                bestSeleccion = poblacion[funcionesObj.index(f)]
+        if minO < bestFObj:
+            bestFObj = minO
+            bestSeleccion = minCrom
 
         generaciones.append(i)
         funcObjMax.append(maxO)
         funcObjMin.append(minO)
-        cromMax.append(maxCrom)
+        cromMin.append(minCrom)
         funcObjProm.append(sum(crom.objetivo for crom in poblacion) / len(poblacion))
         fitnessProm.append(f / nroPoblacion)
         poblacion = seleccion(poblacion, elitismo)
         print(i)
-        print("selecciona")
+        print(bestSeleccion, ' ', bestFObj)
+        print(minO)
+        print(maxO)
         poblacion = crossover(poblacion, elitismo, probCrossover)
-        print("crossover")
         poblacion = mutacion(poblacion, probMutacion)
-        print("mutacion")
         actualizaObjetivo(poblacion, capitales)
-    return bestSeleccion.genes
+
+    return bestSeleccion
 
 def muestraCromosomas(poblacion):
     for i,c in enumerate(poblacion):
@@ -150,7 +145,7 @@ def GeneroPoblacion(capitales, nroPoblacion):
 def seleccion(poblacion, elitismo):
     nuevaGeneracion = []
     if elitismo:
-        poblacion.sort(key=lambda cromosoma: cromosoma.objetivo, )  # Ordeno de menor a mayor
+        poblacion.sort(key=lambda cromosoma: cromosoma.objetivo) # Ordeno de menor a mayor
         k = 0
         # Si se usa elitismo, el 20% de la poblacion que tenga el menor? de objetivo pasara a la prox generacion
         for crom in poblacion:
@@ -180,7 +175,7 @@ def torneo(poblacion):
     for i in range(nroCompetidores):
         competidores.append(poblacion[i])
     # Ordeno los cromosomas de forma descendiente segun su fitness
-    competidores.sort(key=lambda cromosoma: cromosoma.fitness, reverse=True)
+    competidores.sort(key=lambda cromosoma: cromosoma.fitness)
     return competidores[0]
 
 def mutacion(poblacion, probMutacion):

@@ -4,7 +4,7 @@ import numpy as np
 class Cromosoma:
     def __init__(self, capitales):
         # OBTENGO UNA PERMUTACION DE LA LISTA DE CAPITALES
-        self.genes = random.permutation(range(24))
+        self.genes = random.permutation(range(24)).tolist()
         self.objetivo = self.getFuncObjetivo(capitales)
         self.capitales = capitales
 

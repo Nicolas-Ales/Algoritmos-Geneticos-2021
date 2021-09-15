@@ -6,8 +6,8 @@ nroPoblacion = 50
 nroCiclos = 200
 elitismo = True
 
-probCrossover = 0.5
-probMutacion = 0.5
+probCrossover = 0.8
+probMutacion = 0.05
 
 
 print('Seleccione un método para la obtención del camino mínimo: ')
@@ -30,8 +30,7 @@ elif metodo == 3:
 elif metodo == 4:
     # resultado = Genetico(capitales,seleccionCapital) #resultado tiene que ser una lista con el id de las capitales en el orden seleccionado
     print('Seleccionó Genético')
-    resultadoArray = Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMutacion)
-    resultado = resultadoArray.tolist()
+    resultado = Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMutacion)
     resultado.append(resultado[0])
 
 
