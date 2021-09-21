@@ -4,7 +4,7 @@ from TP3.Funciones import *
 
 nroPoblacion = 50
 nroCiclos = 200
-elitismo = True
+elitismo = False
 
 probCrossover = 0.8
 probMutacion = 0.05

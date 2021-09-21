@@ -131,17 +131,21 @@ def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMu
         poblacion = mutacion(poblacion, probMutacion)
         actualizaObjetivo(poblacion, capitales)
 
-    muestraGraficas(funcObjMax,funcObjMin,funcObjProm)
+    muestraGraficas(funcObjMax,funcObjMin,funcObjProm, elitismo)
     return bestSeleccion
 
-def muestraGraficas(oMax,oMin,oProm):
+def muestraGraficas(oMax,oMin,oProm,e):
     plt.plot(oMax, label='Valor Maximo de la FO')
     plt.plot(oMin, label='Valor Minimo de la FO')
     plt.plot(oProm, label='Valor Promedio de la FO')
     plt.autoscale(tight=True)
     plt.ylim(ymin=0)
     plt.legend()
-    plt.savefig('Genetico')
+    if e:
+        plt.savefig('Graf Genetico Con Elitismo')
+    else:
+        plt.savefig('Graf Genetico Sin Elitismo')
+
     plt.show()
 
 def muestraCromosomas(poblacion):
@@ -180,7 +184,7 @@ def seleccion(poblacion, elitismo):
 
 # Seleccion por medio de Torneo
 def torneo(poblacion):
-    nroCompetidores = 2  # ¿Hecemos que esta sea una variable global p/ elegir?
+    nroCompetidores = 5  # ¿Hecemos que esta sea una variable global p/ elegir?
     random.shuffle(poblacion)
     competidores = []
     # Meto los primeros 17 cromosomas dentro de la lista de competidores
@@ -259,7 +263,7 @@ def MuestraDatos(seleccion, capitales, m,e):
     print(tabla)  # Muestra la tabla
     print('Distancia total del camino: ', distancia)
     TablaTxt(seleccion,capitales,m,e)
-    MuestraMapa(seleccion, capitales)
+    MuestraMapa(seleccion, capitales,m,e)
     
 
 def TablaTxt(seleccion, capitales, m,elitismo):
@@ -287,7 +291,16 @@ def TablaTxt(seleccion, capitales, m,elitismo):
     f.write('\end{tabular}\n')
     f.write('\end{table}\n')
 
-def MuestraMapa(seleccion, capitales):
+def MuestraMapa(seleccion, capitales,m,elitismo):
+    if m == 2:
+        met = "Heuristico_Con_Seleccion"
+    elif m == 1:
+        met = "Heuristico_Minimo"
+    elif m == 3:
+        if elitismo:
+            met = "Genetico_Con_Elitismo"
+        else:
+            met = "Genetico_Sin_Elitismo"
     coordenadas_capitales = [
         (270, 300),  # 0  Buenos Aires
         (167, 222),  # 1  Cordoba
@@ -326,5 +339,6 @@ def MuestraMapa(seleccion, capitales):
     for c in coordenadas_capitales:  # Recorre la lista de coordenadas de las capitales
         cv2.circle(imagen, c, 4, (0, 0, 255), -1)  # Dibuja un punto en cada capital
     cv2.circle(imagen, coordenadas_capitales[seleccion[0]], 4, (255, 255, 0), -1)
+    cv2.imwrite("{}.jpg".format(met), imagen)
     cv2.imshow('imagen', imagen)  # Muestra la imagen con los dibujos
     cv2.waitKey(0)  # Sin esta linea la ventana se cierra automaticamente
