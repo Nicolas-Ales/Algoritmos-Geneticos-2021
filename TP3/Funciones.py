@@ -128,7 +128,7 @@ def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMu
         print(minO)
         print(maxO)
         poblacion = crossover(poblacion, elitismo, probCrossover)
-        poblacion = mutacion(poblacion, probMutacion)
+        poblacion = mutacion(poblacion, probMutacion, elitismo)
         actualizaObjetivo(poblacion, capitales)
 
     muestraGraficas(funcObjMax,funcObjMin,funcObjProm, elitismo)
@@ -163,7 +163,7 @@ def seleccion(poblacion, elitismo):
     if elitismo:
         poblacion.sort(key=lambda cromosoma: cromosoma.objetivo) # Ordeno de menor a mayor
         k = 0
-        # Si se usa elitismo, el 20% de la poblacion que tenga el menor? de objetivo pasara a la prox generacion
+        # Si se usa elitismo, el 20% de la poblacion que tenga la menor funcion objetivo pasara a la prox generacion
         for crom in poblacion:
             if k < len(poblacion) * 0.2:
                 cElite = copy.copy(crom)
@@ -191,25 +191,31 @@ def torneo(poblacion):
     for i in range(nroCompetidores):
         competidores.append(poblacion[i])
     # Ordeno los cromosomas de forma descendiente segun su fitness
-    competidores.sort(key=lambda cromosoma: cromosoma.fitness)
+    competidores.sort(key=lambda cromosoma: cromosoma.objetivo)
     return competidores[0]
 
-def mutacion(poblacion, probMutacion):
+def mutacion(poblacion, probMutacion, elitismo):
     nuevaPoblacion = []
-
-    for crom in poblacion:
-        # Me fijo en la probabilidad de que suceda la mutacion
-        if random.uniform(0, 1) > probMutacion:
-            nuevaPoblacion.append(crom)
-        else:
-            genesMutados = crom.genes
-            # Obtengo lista con dos numeros random del 0 al 23
-            n1 = random.randint(0,len(crom.genes)-1)
-            n2 = random.randint(0,len(crom.genes)-1)
-            # Intercambio los valores de la lista en los lugares dados por los nros random
-            genesMutados[n1], genesMutados[n2] = genesMutados[n2], genesMutados[n1]
-            crom.cambiarGenes(genesMutados)
-            nuevaPoblacion.append(crom)
+    if elitismo:
+        poblacion.sort(key=lambda cromosoma: cromosoma.objetivo) # Ordeno de menor a mayor
+        k = 0
+        # Si se usa elitismo, el 20% de la poblacion que tenga la menor funcion objetivo pasara a la prox generacion
+        for crom in poblacion:
+            if k < len(poblacion) * 0.2:
+                nuevaPoblacion.append(crom)
+            # Me fijo en la probabilidad de que suceda la mutacion
+            elif random.uniform(0, 1) > probMutacion:
+                nuevaPoblacion.append(crom)
+            else:
+                genesMutados = crom.genes
+                # Obtengo lista con dos numeros random del 0 al 23
+                n1 = random.randint(0,len(crom.genes)-1)
+                n2 = random.randint(0,len(crom.genes)-1)
+                # Intercambio los valores de la lista en los lugares dados por los nros random
+                genesMutados[n1], genesMutados[n2] = genesMutados[n2], genesMutados[n1]
+                crom.cambiarGenes(genesMutados)
+                nuevaPoblacion.append(crom)
+            k += 1
     return nuevaPoblacion
 
 
@@ -220,7 +226,7 @@ def crossover(poblacion, elitismo, probCrossover):
         poblacion.sort(key=lambda cromosoma: cromosoma.objetivo)
         for pos, cElit in enumerate(poblacion):
             if pos < rango * 0.2:
-                nuevaGeneracion.append(cElit)
+                nuevaGeneracion.append(copy.deepcopy(cElit))
                 poblacion.remove(cElit)
         rango = (int)(rango * 0.8)
         random.shuffle(poblacion)
