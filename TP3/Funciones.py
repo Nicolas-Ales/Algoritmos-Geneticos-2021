@@ -4,6 +4,7 @@ from numpy import random
 import random
 import copy
 from TP3.Clases import Cromosoma
+import matplotlib.pyplot as plt
 
 
 def Exhaustivo():
@@ -130,7 +131,18 @@ def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMu
         poblacion = mutacion(poblacion, probMutacion)
         actualizaObjetivo(poblacion, capitales)
 
+    muestraGraficas(funcObjMax,funcObjMin,funcObjProm)
     return bestSeleccion
+
+def muestraGraficas(oMax,oMin,oProm):
+    plt.plot(oMax, label='Valor Maximo de la FO')
+    plt.plot(oMin, label='Valor Minimo de la FO')
+    plt.plot(oProm, label='Valor Promedio de la FO')
+    plt.autoscale(tight=True)
+    plt.ylim(ymin=0)
+    plt.legend()
+    plt.savefig('Genetico')
+    plt.show()
 
 def muestraCromosomas(poblacion):
     for i,c in enumerate(poblacion):
@@ -233,7 +245,7 @@ def crossover(poblacion, elitismo, probCrossover):
     return nuevaGeneracion
 
 
-def MuestraDatos(seleccion, capitales):
+def MuestraDatos(seleccion, capitales, m,e):
     print('Camino Seleccionado:')
     distancia = 0
     tabla = PrettyTable(['Capital', 'Distancia Recorrida'])  # Crea una tabla para luego ser mostrada
@@ -246,8 +258,34 @@ def MuestraDatos(seleccion, capitales):
             # y siguiente a la total
     print(tabla)  # Muestra la tabla
     print('Distancia total del camino: ', distancia)
+    TablaTxt(seleccion,capitales,m,e)
     MuestraMapa(seleccion, capitales)
+    
 
+def TablaTxt(seleccion, capitales, m,elitismo):
+    distancia = 0
+    if m == 2:
+        met = "Heuristico_Con_Seleccion"
+    elif m == 1:
+        met = "Heuristico_Minimo"
+    elif m == 3:
+        if elitismo:
+            met = "Genetico_Con_Elitismo"
+        else:
+            met = "Genetico_Sin_Elitismo"
+    f = open("Tabla_de_Resultados_{}.txt".format(met), "w")
+    f.write('\\begin{table}[]\n')
+    f.write('\\begin{tabular}{c|c}\n')
+    f.write('Capital & Distancia Recorrida \\\ \hline \n')
+    
+    for i in range(len(seleccion)):
+        f.write('\t{} & {} \\\ \n'.format(capitales[seleccion[i]].Nombre,str(distancia)))
+        if i < 24:  # Como estan descoordinadas a posta la tabla y la distancia
+            # la ultima excederia la lista, por eso el if
+            distancia += capitales[seleccion[i]].Distancias[
+                seleccion[i + 1]]  # Suma la distancia entre la ciudad actual y siguiente a la total
+    f.write('\end{tabular}\n')
+    f.write('\end{table}\n')
 
 def MuestraMapa(seleccion, capitales):
     coordenadas_capitales = [

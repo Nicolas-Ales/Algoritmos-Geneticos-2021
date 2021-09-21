@@ -35,4 +35,4 @@ print(resultado) #Print de prueba para el metodo Heurístico
 
 # resultado = list(range(24))  # Esta es una lista de prueba para testear el muestra datos
 # resultado.append(resultado[0])  # Con esto resolvemos el que tenga que volver, al menos para la parte visual
-MuestraDatos(resultado, capitales)
+MuestraDatos(resultado, capitales, metodo, elitismo)
