@@ -3,3 +3,10 @@
 *.json
 .DS_Store
 .idea
+*.jpg
+*.txt
+*.png
+*.npy
+TP Investigacion/GeneradorFractal.py
+*.xlsx
+*.gif

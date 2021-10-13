@@ -111,7 +111,8 @@ def labyrinth (har, dimensions, pixelEq, pMax):
                 condicion = (pMax < abs((har[x, y]-har[x + 1 , y ]) / pixelEq) * 100) or\
                             (pMax < abs((har[x, y]-har[x - 1 , y ]) / pixelEq) * 100) or\
                             (pMax < abs((har[x, y] - har[x, y + 1])/ pixelEq) * 100) or\
-                            (pMax < abs((har[x, y] - har[x, y - 1]) / pixelEq) * 100)
+                            (pMax < abs((har[x, y] - har[x, y - 1]) / pixelEq) * 100) or\
+                            har[x,y] <= 50
                 if condicion:
                     maze[x,y] = 0
                     print(abs(har[x, y]-har[x + 1 , y ]),' ',abs(har[x, y]-har[x - 1 , y ]),' ',abs(har[x, y]-har[x , y + 1]),' ',' ',abs(har[x, y]-har[x , y - 1]))
