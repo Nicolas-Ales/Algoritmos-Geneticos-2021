@@ -4,6 +4,7 @@ from numpy import random
 import random
 import copy
 from TP3.Clases import Cromosoma
+import matplotlib.pyplot as plt
 
 
 def Exhaustivo():
@@ -127,10 +128,25 @@ def Genetico(capitales, nroPoblacion, nroCiclos, elitismo, probCrossover, probMu
         print(minO)
         print(maxO)
         poblacion = crossover(poblacion, elitismo, probCrossover)
-        poblacion = mutacion(poblacion, probMutacion)
+        poblacion = mutacion(poblacion, probMutacion, elitismo)
         actualizaObjetivo(poblacion, capitales)
 
+    muestraGraficas(funcObjMax,funcObjMin,funcObjProm, elitismo)
     return bestSeleccion
+
+def muestraGraficas(oMax,oMin,oProm,e):
+    plt.plot(oMax, label='Valor Maximo de la FO')
+    plt.plot(oMin, label='Valor Minimo de la FO')
+    plt.plot(oProm, label='Valor Promedio de la FO')
+    plt.autoscale(tight=True)
+    plt.ylim(ymin=0)
+    plt.legend()
+    if e:
+        plt.savefig('Graf Genetico Con Elitismo')
+    else:
+        plt.savefig('Graf Genetico Sin Elitismo')
+
+    plt.show()
 
 def muestraCromosomas(poblacion):
     for i,c in enumerate(poblacion):
@@ -147,7 +163,7 @@ def seleccion(poblacion, elitismo):
     if elitismo:
         poblacion.sort(key=lambda cromosoma: cromosoma.objetivo) # Ordeno de menor a mayor
         k = 0
-        # Si se usa elitismo, el 20% de la poblacion que tenga el menor? de objetivo pasara a la prox generacion
+        # Si se usa elitismo, el 20% de la poblacion que tenga la menor funcion objetivo pasara a la prox generacion
         for crom in poblacion:
             if k < len(poblacion) * 0.2:
                 cElite = copy.copy(crom)
@@ -168,32 +184,38 @@ def seleccion(poblacion, elitismo):
 
 # Seleccion por medio de Torneo
 def torneo(poblacion):
-    nroCompetidores = 2  # ¿Hecemos que esta sea una variable global p/ elegir?
+    nroCompetidores = 5  # ¿Hecemos que esta sea una variable global p/ elegir?
     random.shuffle(poblacion)
     competidores = []
     # Meto los primeros 17 cromosomas dentro de la lista de competidores
     for i in range(nroCompetidores):
         competidores.append(poblacion[i])
     # Ordeno los cromosomas de forma descendiente segun su fitness
-    competidores.sort(key=lambda cromosoma: cromosoma.fitness)
+    competidores.sort(key=lambda cromosoma: cromosoma.objetivo)
     return competidores[0]
 
-def mutacion(poblacion, probMutacion):
+def mutacion(poblacion, probMutacion, elitismo):
     nuevaPoblacion = []
-
-    for crom in poblacion:
-        # Me fijo en la probabilidad de que suceda la mutacion
-        if random.uniform(0, 1) > probMutacion:
-            nuevaPoblacion.append(crom)
-        else:
-            genesMutados = crom.genes
-            # Obtengo lista con dos numeros random del 0 al 23
-            n1 = random.randint(0,len(crom.genes)-1)
-            n2 = random.randint(0,len(crom.genes)-1)
-            # Intercambio los valores de la lista en los lugares dados por los nros random
-            genesMutados[n1], genesMutados[n2] = genesMutados[n2], genesMutados[n1]
-            crom.cambiarGenes(genesMutados)
-            nuevaPoblacion.append(crom)
+    if elitismo:
+        poblacion.sort(key=lambda cromosoma: cromosoma.objetivo) # Ordeno de menor a mayor
+        k = 0
+        # Si se usa elitismo, el 20% de la poblacion que tenga la menor funcion objetivo pasara a la prox generacion
+        for crom in poblacion:
+            if k < len(poblacion) * 0.2:
+                nuevaPoblacion.append(crom)
+            # Me fijo en la probabilidad de que suceda la mutacion
+            elif random.uniform(0, 1) > probMutacion:
+                nuevaPoblacion.append(crom)
+            else:
+                genesMutados = crom.genes
+                # Obtengo lista con dos numeros random del 0 al 23
+                n1 = random.randint(0,len(crom.genes)-1)
+                n2 = random.randint(0,len(crom.genes)-1)
+                # Intercambio los valores de la lista en los lugares dados por los nros random
+                genesMutados[n1], genesMutados[n2] = genesMutados[n2], genesMutados[n1]
+                crom.cambiarGenes(genesMutados)
+                nuevaPoblacion.append(crom)
+            k += 1
     return nuevaPoblacion
 
 
@@ -204,7 +226,7 @@ def crossover(poblacion, elitismo, probCrossover):
         poblacion.sort(key=lambda cromosoma: cromosoma.objetivo)
         for pos, cElit in enumerate(poblacion):
             if pos < rango * 0.2:
-                nuevaGeneracion.append(cElit)
+                nuevaGeneracion.append(copy.deepcopy(cElit))
                 poblacion.remove(cElit)
         rango = (int)(rango * 0.8)
         random.shuffle(poblacion)
@@ -233,7 +255,7 @@ def crossover(poblacion, elitismo, probCrossover):
     return nuevaGeneracion
 
 
-def MuestraDatos(seleccion, capitales):
+def MuestraDatos(seleccion, capitales, m,e):
     print('Camino Seleccionado:')
     distancia = 0
     tabla = PrettyTable(['Capital', 'Distancia Recorrida'])  # Crea una tabla para luego ser mostrada
@@ -246,10 +268,45 @@ def MuestraDatos(seleccion, capitales):
             # y siguiente a la total
     print(tabla)  # Muestra la tabla
     print('Distancia total del camino: ', distancia)
-    MuestraMapa(seleccion, capitales)
+    TablaTxt(seleccion,capitales,m,e)
+    MuestraMapa(seleccion, capitales,m,e)
+    
 
+def TablaTxt(seleccion, capitales, m,elitismo):
+    distancia = 0
+    if m == 2:
+        met = "Heuristico_Con_Seleccion"
+    elif m == 1:
+        met = "Heuristico_Minimo"
+    elif m == 3:
+        if elitismo:
+            met = "Genetico_Con_Elitismo"
+        else:
+            met = "Genetico_Sin_Elitismo"
+    f = open("Tabla_de_Resultados_{}.txt".format(met), "w")
+    f.write('\\begin{table}[]\n')
+    f.write('\\begin{tabular}{c|c}\n')
+    f.write('Capital & Distancia Recorrida \\\ \hline \n')
+    
+    for i in range(len(seleccion)):
+        f.write('\t{} & {} \\\ \n'.format(capitales[seleccion[i]].Nombre,str(distancia)))
+        if i < 24:  # Como estan descoordinadas a posta la tabla y la distancia
+            # la ultima excederia la lista, por eso el if
+            distancia += capitales[seleccion[i]].Distancias[
+                seleccion[i + 1]]  # Suma la distancia entre la ciudad actual y siguiente a la total
+    f.write('\end{tabular}\n')
+    f.write('\end{table}\n')
 
-def MuestraMapa(seleccion, capitales):
+def MuestraMapa(seleccion, capitales,m,elitismo):
+    if m == 2:
+        met = "Heuristico_Con_Seleccion"
+    elif m == 1:
+        met = "Heuristico_Minimo"
+    elif m == 3:
+        if elitismo:
+            met = "Genetico_Con_Elitismo"
+        else:
+            met = "Genetico_Sin_Elitismo"
     coordenadas_capitales = [
         (270, 300),  # 0  Buenos Aires
         (167, 222),  # 1  Cordoba
@@ -288,5 +345,6 @@ def MuestraMapa(seleccion, capitales):
     for c in coordenadas_capitales:  # Recorre la lista de coordenadas de las capitales
         cv2.circle(imagen, c, 4, (0, 0, 255), -1)  # Dibuja un punto en cada capital
     cv2.circle(imagen, coordenadas_capitales[seleccion[0]], 4, (255, 255, 0), -1)
+    cv2.imwrite("{}.jpg".format(met), imagen)
     cv2.imshow('imagen', imagen)  # Muestra la imagen con los dibujos
     cv2.waitKey(0)  # Sin esta linea la ventana se cierra automaticamente
