@@ -7,6 +7,6 @@
 *.txt
 *.png
 *.npy
-TP Investigacion/GeneradorFractal.py
+TP_Investigacion/GeneradorFractal.py
 *.xlsx
 *.gif
