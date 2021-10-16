@@ -109,7 +109,7 @@ def mutacionLargo(poblacion,pMut,cActual,cTotales):
     if cActual < 20:
         elimProb = 1 - cActual/cTotales
     else:
-        elimProb = 0.9
+        elimProb = 0.1
     for c in poblacion:
         if np.random.uniform(0,1) <= pMut:
             genes = c.genes
